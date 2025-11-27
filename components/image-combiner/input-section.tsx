@@ -59,7 +59,7 @@ interface InputSectionProps {
   promptTextareaRef: React.RefObject<HTMLTextAreaElement>
   generations: any[]
   selectedGenerationId: string | null
-  onSelectGeneration: (id: string) => void
+  onSelectGeneration: (id: string | null) => void
   onCancelGeneration: (id: string) => void
   onDeleteGeneration: (id: string) => Promise<void>
   historyLoading: boolean

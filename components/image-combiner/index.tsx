@@ -19,11 +19,14 @@ import { FullscreenViewer } from "./fullscreen-viewer"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ApiKeyWarning } from "@/components/api-key-warning"
 import { UserMenu } from "@/components/auth/user-menu"
+import { AuthRequiredBanner } from "@/components/auth/auth-required-banner"
+import { useAuth } from "@/hooks/use-auth"
 
 const MemoizedDithering = memo(Dithering)
 
 export function ImageCombiner() {
   const isMobile = useMobile()
+  const { user } = useAuth()
   const [prompt, setPrompt] = useState("A beautiful landscape with mountains and a lake at sunset")
   const [model, setModel] = useState("nano-banana")
   const [imageSize, setImageSize] = useState("auto")
@@ -37,6 +40,7 @@ export function ImageCombiner() {
   const [showHowItWorks, setShowHowItWorks] = useState(false)
   const [logoLoaded, setLogoLoaded] = useState(false)
   const [apiKeyMissing, setApiKeyMissing] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
 
   const [leftWidth, setLeftWidth] = useState(50) // percentage
   const [isResizing, setIsResizing] = useState(false)
@@ -111,7 +115,7 @@ export function ImageCombiner() {
 
   const hasImages = images.length > 0
   const currentMode = hasImages ? "image-editing" : "text-to-image"
-  const canGenerate = prompt.trim().length > 0 && (currentMode === "text-to-image" || hasImages)
+  const canGenerate = !!user && prompt.trim().length > 0 && (currentMode === "text-to-image" || hasImages)
 
   useEffect(() => {
     if (selectedGeneration?.status === "complete" && selectedGeneration?.imageUrl) {
@@ -631,10 +635,11 @@ export function ImageCombiner() {
                     </a>
                   </p>
                 </div>
-                <UserMenu />
+                <UserMenu showAuthModal={showAuthModal} onAuthModalChange={setShowAuthModal} />
               </div>
 
               {apiKeyMissing && <ApiKeyWarning />}
+              {!user && <AuthRequiredBanner onSignIn={() => setShowAuthModal(true)} />}
 
               <div className="flex flex-col gap-4 xl:gap-0">
                 <div
@@ -686,7 +691,7 @@ export function ImageCombiner() {
                     <div className="hidden xl:block mt-3 flex-shrink-0">
                       <GenerationHistory
                         generations={persistedGenerations}
-                        selectedId={selectedGenerationId}
+                        selectedId={selectedGenerationId ?? undefined}
                         onSelect={setSelectedGenerationId}
                         onCancel={cancelGeneration}
                         onDelete={deleteGeneration}
@@ -737,7 +742,7 @@ export function ImageCombiner() {
                 <div className="xl:hidden flex-shrink-0">
                   <GenerationHistory
                     generations={persistedGenerations}
-                    selectedId={selectedGenerationId}
+                    selectedId={selectedGenerationId ?? undefined}
                     onSelect={setSelectedGenerationId}
                     onCancel={cancelGeneration}
                     onDelete={deleteGeneration}

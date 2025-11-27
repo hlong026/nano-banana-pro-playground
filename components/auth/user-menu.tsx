@@ -14,9 +14,17 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { User, LogOut, Settings } from "lucide-react"
 
-export function UserMenu() {
+interface UserMenuProps {
+  showAuthModal?: boolean
+  onAuthModalChange?: (show: boolean) => void
+}
+
+export function UserMenu({ showAuthModal: externalShowAuthModal, onAuthModalChange }: UserMenuProps = {}) {
   const { user, loading, signOut } = useAuth()
-  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [internalShowAuthModal, setInternalShowAuthModal] = useState(false)
+  
+  const showAuthModal = externalShowAuthModal ?? internalShowAuthModal
+  const setShowAuthModal = onAuthModalChange ?? setInternalShowAuthModal
 
   const handleSignOut = async () => {
     await signOut()
