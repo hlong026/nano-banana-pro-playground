@@ -76,11 +76,19 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 ### Supabase Setup
 
 1. **Create Tables**: Run `supabase/schema.sql` in your Supabase SQL Editor
-2. **Enable OAuth**: 
+
+2. **Email Authentication** (Required):
+   - Go to Authentication > Settings > Email Auth
+   - For development: Disable "Enable email confirmations"
+   - For production: Configure SMTP settings
+
+3. **OAuth Setup** (Optional):
+   - See detailed guide: `docs/GOOGLE_OAUTH_SETUP.md`
    - Go to Authentication > Providers
    - Enable Google and/or GitHub
    - Add your OAuth credentials
    - Set redirect URL to: `https://your-domain.com/auth/callback`
+   - If not configured, set `NEXT_PUBLIC_ENABLE_OAUTH=false` to hide OAuth buttons
 
 ### API Keys
 

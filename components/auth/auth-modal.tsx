@@ -54,11 +54,24 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
     setLoading(true)
     setError("")
     try {
+      let result
       if (provider === "google") {
-        await signInWithGoogle()
+        result = await signInWithGoogle()
       } else {
-        await signInWithGithub()
+        result = await signInWithGithub()
       }
+      
+      if (result.error) {
+        // 检查是否是提供商未启用的错误
+        if (result.error.message?.includes("provider is not enabled") || 
+            result.error.message?.includes("Unsupported provider")) {
+          setError(`${provider.charAt(0).toUpperCase() + provider.slice(1)} login is not configured yet. Please use email/password to sign in.`)
+        } else {
+          setError(result.error.message || "An error occurred")
+        }
+        setLoading(false)
+      }
+      // OAuth 会重定向，所以不需要在这里处理成功情况
     } catch (err: any) {
       setError(err.message || "An error occurred")
       setLoading(false)
@@ -117,7 +130,7 @@ export function AuthModal({ open, onOpenChange }: AuthModalProps) {
           </Button>
         </form>
 
-        {mode !== "forgot" && (
+        {mode !== "forgot" && process.env.NEXT_PUBLIC_ENABLE_OAUTH !== "false" && (
           <>
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
