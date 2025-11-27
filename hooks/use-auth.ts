@@ -11,6 +11,11 @@ export function useAuth() {
   const supabase = createClient()
 
   useEffect(() => {
+    if (!supabase) {
+      setLoading(false)
+      return
+    }
+
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       setSession(session)
@@ -29,31 +34,34 @@ export function useAuth() {
     )
 
     return () => subscription.unsubscribe()
-  }, [supabase.auth])
+  }, [supabase])
 
   const signInWithEmail = useCallback(
     async (email: string, password: string) => {
+      if (!supabase) return { data: null, error: new Error("Supabase not configured") }
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
       return { data, error }
     },
-    [supabase.auth]
+    [supabase]
   )
 
   const signUpWithEmail = useCallback(
     async (email: string, password: string) => {
+      if (!supabase) return { data: null, error: new Error("Supabase not configured") }
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
       })
       return { data, error }
     },
-    [supabase.auth]
+    [supabase]
   )
 
   const signInWithGoogle = useCallback(async () => {
+    if (!supabase) return { data: null, error: new Error("Supabase not configured") }
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -61,9 +69,10 @@ export function useAuth() {
       },
     })
     return { data, error }
-  }, [supabase.auth])
+  }, [supabase])
 
   const signInWithGithub = useCallback(async () => {
+    if (!supabase) return { data: null, error: new Error("Supabase not configured") }
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "github",
       options: {
@@ -71,21 +80,23 @@ export function useAuth() {
       },
     })
     return { data, error }
-  }, [supabase.auth])
+  }, [supabase])
 
   const signOut = useCallback(async () => {
+    if (!supabase) return { error: new Error("Supabase not configured") }
     const { error } = await supabase.auth.signOut()
     return { error }
-  }, [supabase.auth])
+  }, [supabase])
 
   const resetPassword = useCallback(
     async (email: string) => {
+      if (!supabase) return { data: null, error: new Error("Supabase not configured") }
       const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth/reset-password`,
       })
       return { data, error }
     },
-    [supabase.auth]
+    [supabase]
   )
 
   return {

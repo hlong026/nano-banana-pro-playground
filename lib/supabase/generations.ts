@@ -35,6 +35,8 @@ function dbToGeneration(db: DbGeneration): Generation {
 
 export async function fetchGenerations(page = 0): Promise<{ data: Generation[]; hasMore: boolean }> {
   const supabase = createClient()
+  if (!supabase) return { data: [], hasMore: false }
+  
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
@@ -64,6 +66,8 @@ export async function fetchGenerations(page = 0): Promise<{ data: Generation[]; 
 
 export async function createGeneration(generation: Omit<Generation, "id" | "createdAt">): Promise<Generation | null> {
   const supabase = createClient()
+  if (!supabase) return null
+  
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
@@ -95,6 +99,7 @@ export async function createGeneration(generation: Omit<Generation, "id" | "crea
 
 export async function updateGeneration(id: string, updates: Partial<Generation>): Promise<boolean> {
   const supabase = createClient()
+  if (!supabase) return false
   
   const dbUpdates: Partial<DbGeneration> = {}
   if (updates.imageUrl !== undefined) dbUpdates.image_url = updates.imageUrl || null
@@ -116,6 +121,7 @@ export async function updateGeneration(id: string, updates: Partial<Generation>)
 
 export async function deleteGeneration(id: string): Promise<boolean> {
   const supabase = createClient()
+  if (!supabase) return false
 
   const { error } = await supabase
     .from("generations")
@@ -132,6 +138,8 @@ export async function deleteGeneration(id: string): Promise<boolean> {
 
 export async function clearAllGenerations(): Promise<boolean> {
   const supabase = createClient()
+  if (!supabase) return false
+  
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
